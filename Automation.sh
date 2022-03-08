@@ -54,5 +54,26 @@ tar -cf /tmp/$name-httpd-logs-$timestamp.tar *.log
 # copy the log files to Se-bucket
 aws s3 cp /tmp/${name}-httpd-logs-${timestamp}.tar s3://${s3_bucket}/${name}-httpd-logs-${timestamp}.tar
 
+#book keeping for logs
+cd  /var/www/html/
+
+if [[ ! -f inventory.html ]]
+then
+        echo -e "Log-Type\t \t Time-Created\t \t \t Type\t \t Size " > inventory.html
+fi
+
+size=$(du -h /tmp/${name}-httpd-logs-${timestamp}.tar | awk '{print $1}')
+
+if [[ -f inventory.html ]]
+then
+        echo -e "httpd-logs\t \t ${timestamp}\t \t tar\t \t ${size} " >> inventory.html
+fi
+
+# Crontab job
+
+if [[ ! -f /etc/cron.d/Automation ]]
+then
+    echo " 0 10 * * * root root/Automation_Project/automation.sh" > /etc/cron.d/Automation
+fi
 
 
